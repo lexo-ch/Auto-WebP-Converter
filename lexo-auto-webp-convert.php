@@ -29,10 +29,10 @@ function webp_converter($metadata, $attachment_id) {
     }
 
     $upload_dir = wp_upload_dir();
-    $file_path = $upload_dir['basedir'] . '/' . $metadata['file'];
+    $file_path = "{$upload_dir['basedir']}/{$metadata['file']}";
 
     $file_info = pathinfo($file_path);
-    $webp_file_path = $file_info['dirname'] . '/' . $file_info['filename'] . '.webp';
+    $webp_file_path = "{$file_info['dirname']}/{$file_info['filename']}.webp";
 
     // Only convert JPG and PNG images
     if (!in_array(strtolower($file_info['extension']), ['jpg', 'jpeg', 'png'])) {
@@ -55,7 +55,7 @@ function webp_converter($metadata, $attachment_id) {
 
         // Update metadata to point to the WebP image
         $metadata['file'] = str_replace($file_info['basename'], $file_info['filename'] . '.webp', $metadata['file']);
-        $metadata['sizes'] = array();
+        $metadata['sizes'] = [];
 
         // Update file size
         $metadata['filesize'] = filesize($webp_file_path);
