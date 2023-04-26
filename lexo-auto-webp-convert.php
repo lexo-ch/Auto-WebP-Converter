@@ -22,55 +22,37 @@ function imagick_not_enabled_notice() {
     <?php
 }
 
-// Convert uploaded JPG and PNG images to WebP and update metadata
-function webp_converter($metadata, $attachment_id) {
-    if (!isset($metadata['file'])) {
-        return $metadata;
-    }
-
-    $upload_dir = wp_upload_dir();
-    $file_path = "{$upload_dir['basedir']}/{$metadata['file']}";
-
-    $file_info = pathinfo($file_path);
-    $webp_file_path = "{$file_info['dirname']}/{$file_info['filename']}.webp";
+function webp_converter($file) {
+    $file_info = pathinfo($file['file']);
 
     // Only convert JPG and PNG images
     if (!in_array(strtolower($file_info['extension']), ['jpg', 'jpeg', 'png'])) {
-        return $metadata;
+        return $file;
     }
 
     try {
-        $imagick = new Imagick($file_path);
-        $imagick->setImageFormat('webp');
+        $imagick = new Imagick($file['file']);
+        $imagick->setFormat('webp');
 
-        // Set output quality for JPG images
         if (in_array(strtolower($file_info['extension']), ['jpg', 'jpeg'])) {
             $imagick->setOption('webp:lossless', 'false');
             $imagick->setImageCompressionQuality(70);
         }
 
+        $webp_file_path = $file_info['dirname'] . '/' . $file_info['filename'] . '.webp';
+
         $imagick->writeImage($webp_file_path);
         $imagick->clear();
         $imagick->destroy();
 
-        // Update metadata to point to the WebP image
-        $metadata['file'] = str_replace($file_info['basename'], $file_info['filename'] . '.webp', $metadata['file']);
-        $metadata['sizes'] = [];
+        unlink($file['file']);
 
-        // Update file size
-        $metadata['filesize'] = filesize($webp_file_path);
-
-        // Update MIME type and file URL
-        wp_update_attachment_metadata($attachment_id, $metadata);
-        update_attached_file($attachment_id, $webp_file_path);
-
-        // Remove the original image from the server
-        unlink($file_path);
-
+        $file['file'] = $webp_file_path;
+        $file['type'] = 'image/webp';
     } catch (Exception $e) {
         error_log('WebP Converter: Failed to convert image to WebP format - ' . $e->getMessage());
     }
 
-    return $metadata;
+    return $file;
 }
-add_filter('wp_generate_attachment_metadata', 'webp_converter', 10, 2);
+add_filter('wp_handle_upload', 'webp_converter');
