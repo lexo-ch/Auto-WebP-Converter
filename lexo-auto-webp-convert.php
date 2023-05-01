@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: LEXO Auto WebP Converter
+ * Plugin Name: Auto WebP Converter
  * Plugin URI: https://www.lexo.ch
  * Description: Automatically converts JPG and PNG images uploaded to the WordPress media library to the WebP format.
  * Author: LEXO
