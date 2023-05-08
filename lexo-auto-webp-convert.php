@@ -4,20 +4,20 @@
  * Plugin URI: https://www.lexo.ch
  * Description: Automatically converts JPG and PNG images uploaded to the WordPress media library to the WebP format.
  * Author: LEXO
- * Version: 1.0.0
+ * Version: 2.0.0
  * Author URI: https://www.lexo.ch
  */
 
-// Check if Imagick extension is enabled
-if (!extension_loaded('imagick') || !class_exists('Imagick')) {
-    add_action('admin_notices', 'imagick_not_enabled_notice');
+ // Check if GD extension is enabled
+if (!extension_loaded('gd') || !function_exists('gd_info')) {
+    add_action('admin_notices', 'gd_not_enabled_notice');
     return;
 }
 
-function imagick_not_enabled_notice() {
+function gd_not_enabled_notice() {
     ?>
     <div class="notice notice-error">
-        <p><?php _e('The Imagick PHP extension is required for the WebP Converter plugin to work.', 'webp-converter'); ?></p>
+        <p><?php _e('The GD PHP extension is required for the WebP Converter plugin to work.', 'webp-converter'); ?></p>
     </div>
     <?php
 }
@@ -31,19 +31,25 @@ function webp_converter($file) {
     }
 
     try {
-        $imagick = new Imagick($file['file']);
-        $imagick->setFormat('webp');
-
-        if (in_array(strtolower($file_info['extension']), ['jpg', 'jpeg'])) {
-            $imagick->setOption('webp:lossless', 'false');
-            $imagick->setImageCompressionQuality(70);
-        }
-
+        $image = null;
         $webp_file_path = $file_info['dirname'] . '/' . $file_info['filename'] . '.webp';
 
-        $imagick->writeImage($webp_file_path);
-        $imagick->clear();
-        $imagick->destroy();
+        switch(strtolower($file_info['extension'])) {
+            case 'jpg':
+            case 'jpeg':
+                $image = imagecreatefromjpeg($file['file']);
+                imagewebp($image, $webp_file_path, 85);
+                break;
+            case 'png':
+                $image = imagecreatefrompng($file['file']);
+                break;
+        }
+
+        if (!$image) {
+            throw new Exception('Failed to create image resource');
+        }
+
+        imagedestroy($image);
 
         unlink($file['file']);
 
