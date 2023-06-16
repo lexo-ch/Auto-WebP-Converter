@@ -32,7 +32,10 @@ function webp_converter($file) {
 
     try {
         $image = null;
-        $webp_file_path = $file_info['dirname'] . '/' . $file_info['filename'] . '.webp';
+
+        $file_info['filename'] = wp_unique_filename($file_info['dirname'], $file_info['filename'] . '.webp');
+
+        $webp_file_path = $file_info['dirname'] . '/' . $file_info['filename'];
 
         switch(strtolower($file_info['extension'])) {
             case 'jpg':
