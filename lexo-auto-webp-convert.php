@@ -45,6 +45,7 @@ function webp_converter($file) {
                 break;
             case 'png':
                 $image = imagecreatefrompng($file['file']);
+                imagewebp($image, $webp_file_path, 100);
                 break;
         }
 
