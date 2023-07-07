@@ -50,11 +50,11 @@ function webp_converter($file) {
                 $image = imagecreatefrompng($file['file']);
         }
 
-        imagewebp($image, $webp_file_path, $quality);
-
         if (!$image) {
             throw new Exception('Failed to create image resource');
         }
+
+        imagewebp($image, $webp_file_path, $quality);
 
         imagedestroy($image);
 
