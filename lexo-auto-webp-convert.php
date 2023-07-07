@@ -4,7 +4,7 @@
  * Plugin URI: https://www.lexo.ch
  * Description: Automatically converts JPG and PNG images uploaded to the WordPress media library to the WebP format.
  * Author: LEXO
- * Version: 2.0.1
+ * Version: 2.0.2
  * Author URI: https://www.lexo.ch
  */
 
