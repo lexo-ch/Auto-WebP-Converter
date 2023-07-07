@@ -37,17 +37,20 @@ function webp_converter($file) {
 
         $webp_file_path = $file_info['dirname'] . '/' . $file_info['filename'];
 
+        $quality = 100;
+
         switch(strtolower($file_info['extension'])) {
             case 'jpg':
             case 'jpeg':
                 $image = imagecreatefromjpeg($file['file']);
-                imagewebp($image, $webp_file_path, 85);
+                $quality = 85;
+         
                 break;
             case 'png':
                 $image = imagecreatefrompng($file['file']);
-                imagewebp($image, $webp_file_path, 100);
-                break;
         }
+
+        imagewebp($image, $webp_file_path, $quality);
 
         if (!$image) {
             throw new Exception('Failed to create image resource');
